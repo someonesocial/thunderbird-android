@@ -1,8 +1,10 @@
 package com.fsck.k9.ui
 
+import android.app.Activity
 import android.content.Context
 import app.k9mail.legacy.message.controller.MessagingControllerMailChecker
 import com.fsck.k9.controller.MessagingController
+import com.fsck.k9.ui.foldable.FoldableStateObserver
 import com.fsck.k9.ui.helper.DisplayHtmlUiFactory
 import com.fsck.k9.ui.helper.SizeFormatter
 import com.fsck.k9.ui.messageview.LinkTextHandler
@@ -25,4 +27,5 @@ val uiModule = module {
     factory { (context: Context) -> SizeFormatter(context.resources) }
     factory { ShareIntentBuilder(resourceProvider = get(), textPartFinder = get(), quoteDateFormatter = get()) }
     factory { LinkTextHandler(context = get(), clipboardManager = get()) }
+    factory { (activity: Activity) -> FoldableStateObserver(activity = activity, logger = get()) }
 }
