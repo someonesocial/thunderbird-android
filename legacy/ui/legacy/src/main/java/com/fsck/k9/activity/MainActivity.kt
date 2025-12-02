@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
+import androidx.lifecycle.lifecycleScope
 import app.k9mail.core.android.common.compat.BundleCompat
 import app.k9mail.core.android.common.contact.CachingRepository
 import app.k9mail.core.android.common.contact.ContactRepository
@@ -42,6 +43,8 @@ import com.fsck.k9.search.isUnifiedFolders
 import com.fsck.k9.ui.BuildConfig
 import com.fsck.k9.ui.R
 import com.fsck.k9.ui.base.BaseActivity
+import com.fsck.k9.ui.foldable.FoldableState
+import com.fsck.k9.ui.foldable.FoldableStateObserver
 import com.fsck.k9.ui.managefolders.ManageFoldersActivity
 import com.fsck.k9.ui.messagelist.DefaultFolderProvider
 import com.fsck.k9.ui.messagelist.MessageListFragment
@@ -55,6 +58,9 @@ import com.fsck.k9.view.ViewSwitcher
 import com.fsck.k9.view.ViewSwitcher.OnSwitchCompleteListener
 import com.google.android.material.textview.MaterialTextView
 import kotlin.getValue
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import net.thunderbird.core.android.account.LegacyAccount
 import net.thunderbird.core.android.account.LegacyAccountDto
 import net.thunderbird.core.android.account.LegacyAccountDtoManager
@@ -76,6 +82,7 @@ import net.thunderbird.feature.search.legacy.serialization.LocalMessageSearchSer
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.parameter.parametersOf
 
 private const val TAG = "MainActivity"
 
@@ -112,6 +119,8 @@ open class MainActivity :
     private val fundingManager: FundingManager by inject()
     private val logger: Logger by inject()
     private val legacyAccountDataMapper: LegacyAccountDataMapper by inject()
+
+    private val foldableStateObserver: FoldableStateObserver by inject { parametersOf(this) }
 
     private lateinit var actionBar: ActionBar
     private var searchView: SearchView? = null
@@ -209,6 +218,52 @@ open class MainActivity :
         initializeFragments()
         displayViews()
         initializeFunding()
+        initializeFoldableObserver()
+    }
+
+    private fun initializeFoldableObserver() {
+        // Register lifecycle observer
+        lifecycle.addObserver(foldableStateObserver)
+
+        // Observe foldable state changes only when using WHEN_UNFOLDED mode
+        lifecycleScope.launch {
+            foldableStateObserver.foldableState
+                .distinctUntilChanged()
+                .filter {
+                    generalSettingsManager.getConfig().display.coreSettings.splitViewMode ==
+                        SplitViewMode.WHEN_UNFOLDED
+                }
+                .collect { foldableState ->
+                    handleFoldableStateChange(foldableState)
+                }
+        }
+    }
+
+    private fun handleFoldableStateChange(foldableState: FoldableState) {
+        logger.d(TAG, "Handling foldable state change: $foldableState")
+
+        val shouldUseSplitView = foldableState == FoldableState.UNFOLDED
+        val isCurrentlySplitView = displayMode == DisplayMode.SPLIT_VIEW
+
+        if (shouldUseSplitView && !isCurrentlySplitView) {
+            // Switch to split view
+            logger.d(TAG, "Switching to split view due to unfold")
+            recreateWithSplitView()
+        } else if (!shouldUseSplitView && isCurrentlySplitView) {
+            // Switch to single pane view
+            logger.d(TAG, "Switching to single pane view due to fold")
+            recreateWithSinglePane()
+        }
+    }
+
+    private fun recreateWithSplitView() {
+        // Recreate activity to properly initialize split view layout
+        recreate()
+    }
+
+    private fun recreateWithSinglePane() {
+        // Recreate activity to properly initialize single pane layout
+        recreate()
     }
 
     private fun initializeFunding() {
@@ -344,9 +399,12 @@ open class MainActivity :
     private fun useSplitView(): Boolean {
         val splitViewMode = generalSettingsManager.getConfig().display.coreSettings.splitViewMode
         val orientation = resources.configuration.orientation
-        return splitViewMode === SplitViewMode.ALWAYS ||
-            splitViewMode === SplitViewMode.WHEN_IN_LANDSCAPE &&
-            orientation == Configuration.ORIENTATION_LANDSCAPE
+        return when (splitViewMode) {
+            SplitViewMode.ALWAYS -> true
+            SplitViewMode.NEVER -> false
+            SplitViewMode.WHEN_IN_LANDSCAPE -> orientation == Configuration.ORIENTATION_LANDSCAPE
+            SplitViewMode.WHEN_UNFOLDED -> foldableStateObserver.currentState == FoldableState.UNFOLDED
+        }
     }
 
     private fun initializeLayout() {
