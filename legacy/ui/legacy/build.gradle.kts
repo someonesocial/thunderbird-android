@@ -1,7 +1,6 @@
 plugins {
     id(ThunderbirdPlugins.Library.androidCompose)
     alias(libs.plugins.kotlin.parcelize)
-    kotlin("kapt")
 }
 
 dependencies {
@@ -77,7 +76,7 @@ dependencies {
     implementation(libs.uri)
 
     implementation(libs.glide)
-    kapt(libs.glide.compiler)
+    annotationProcessor(libs.glide.compiler)
 
     testImplementation(projects.core.logging.testing)
     testImplementation(projects.feature.account.fake)
