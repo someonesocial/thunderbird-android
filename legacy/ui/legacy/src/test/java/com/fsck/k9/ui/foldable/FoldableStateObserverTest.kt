@@ -37,6 +37,7 @@ class FoldableStateObserverTest {
 
     @Before
     fun setup() {
+        FoldableStateObserver.resetStateForTesting()
         activity = mockk(relaxed = true)
         logger = mockk(relaxed = true)
         lifecycleOwner = mockk()

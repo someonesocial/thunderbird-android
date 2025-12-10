@@ -51,7 +51,7 @@ class FoldableStateObserver(
     private var collectJob: Job? = null
     private var debounceJob: Job? = null
 
-    private val _foldableState = MutableStateFlow(FoldableState.UNKNOWN)
+    private val _foldableState = MutableStateFlow(lastKnownState)
     val foldableState: StateFlow<FoldableState> = _foldableState.asStateFlow()
 
     /**
@@ -142,6 +142,7 @@ class FoldableStateObserver(
                 logger.debug("FoldableStateObserver") {
                     "Foldable state changed: ${_foldableState.value} -> $newState"
                 }
+                lastKnownState = newState
                 _foldableState.value = newState
             }
         }
@@ -149,5 +150,10 @@ class FoldableStateObserver(
 
     companion object {
         private const val DEBOUNCE_DELAY_MS = 300L
+        private var lastKnownState = FoldableState.UNKNOWN
+
+        internal fun resetStateForTesting() {
+            lastKnownState = FoldableState.UNKNOWN
+        }
     }
 }
