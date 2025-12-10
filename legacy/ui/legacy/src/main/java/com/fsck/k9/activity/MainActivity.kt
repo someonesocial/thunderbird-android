@@ -227,12 +227,12 @@ open class MainActivity :
         // Observe foldable state changes only when using WHEN_UNFOLDED mode
         lifecycleScope.launch {
             foldableStateObserver.foldableState
-                .filter {
-                    generalSettingsManager.getConfig().display.coreSettings.splitViewMode ==
-                        SplitViewMode.WHEN_UNFOLDED
-                }
                 .collect { foldableState ->
-                    handleFoldableStateChange(foldableState)
+                    if (generalSettingsManager.getConfig().display.coreSettings.splitViewMode ==
+                        SplitViewMode.WHEN_UNFOLDED
+                    ) {
+                        handleFoldableStateChange(foldableState)
+                    }
                 }
         }
     }
