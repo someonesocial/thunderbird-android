@@ -58,7 +58,6 @@ import com.fsck.k9.view.ViewSwitcher
 import com.fsck.k9.view.ViewSwitcher.OnSwitchCompleteListener
 import com.google.android.material.textview.MaterialTextView
 import kotlin.getValue
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import net.thunderbird.core.android.account.LegacyAccount
@@ -228,7 +227,6 @@ open class MainActivity :
         // Observe foldable state changes only when using WHEN_UNFOLDED mode
         lifecycleScope.launch {
             foldableStateObserver.foldableState
-                .distinctUntilChanged()
                 .filter {
                     generalSettingsManager.getConfig().display.coreSettings.splitViewMode ==
                         SplitViewMode.WHEN_UNFOLDED
@@ -240,18 +238,18 @@ open class MainActivity :
     }
 
     private fun handleFoldableStateChange(foldableState: FoldableState) {
-        logger.d(TAG, "Handling foldable state change: $foldableState")
+        logger.debug(TAG) { "Handling foldable state change: $foldableState" }
 
         val shouldUseSplitView = foldableState == FoldableState.UNFOLDED
         val isCurrentlySplitView = displayMode == DisplayMode.SPLIT_VIEW
 
         if (shouldUseSplitView && !isCurrentlySplitView) {
             // Switch to split view
-            logger.d(TAG, "Switching to split view due to unfold")
+            logger.debug(TAG) { "Switching to split view due to unfold" }
             recreateWithSplitView()
         } else if (!shouldUseSplitView && isCurrentlySplitView) {
             // Switch to single pane view
-            logger.d(TAG, "Switching to single pane view due to fold")
+            logger.debug(TAG) { "Switching to single pane view due to fold" }
             recreateWithSinglePane()
         }
     }

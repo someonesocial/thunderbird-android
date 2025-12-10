@@ -135,7 +135,7 @@ class FoldableStateObserverTest {
         windowLayoutInfoFlow.value = createWindowLayoutInfo(listOf(foldingFeature))
         advanceTimeBy(400)
 
-        verify { logger.d("FoldableStateObserver", any()) }
+        verify { logger.debug(eq("FoldableStateObserver"), any(), any()) }
     }
 
     // Helper functions to create mock objects
@@ -157,4 +157,3 @@ class FoldableStateObserverTest {
         }
     }
 }
-

@@ -76,7 +76,7 @@ class FoldableStateObserver(
     }
 
     private fun startObserving() {
-        logger.d("FoldableStateObserver", "Starting to observe window layout info")
+        logger.debug("FoldableStateObserver") { "Starting to observe window layout info" }
 
         collectJob = scope.launch {
             windowInfoTracker.windowLayoutInfo(activity)
@@ -88,7 +88,7 @@ class FoldableStateObserver(
     }
 
     private fun stopObserving() {
-        logger.d("FoldableStateObserver", "Stopping observation")
+        logger.debug("FoldableStateObserver") { "Stopping observation" }
         collectJob?.cancel()
         collectJob = null
         debounceJob?.cancel()
@@ -96,7 +96,7 @@ class FoldableStateObserver(
     }
 
     private fun cleanup() {
-        logger.d("FoldableStateObserver", "Cleaning up")
+        logger.debug("FoldableStateObserver") { "Cleaning up" }
         stopObserving()
     }
 
@@ -141,10 +141,9 @@ class FoldableStateObserver(
             delay(DEBOUNCE_DELAY_MS)
 
             if (_foldableState.value != newState) {
-                logger.d(
-                    "FoldableStateObserver",
-                    "Foldable state changed: ${_foldableState.value} -> $newState",
-                )
+                logger.debug("FoldableStateObserver") {
+                    "Foldable state changed: ${_foldableState.value} -> $newState"
+                }
                 _foldableState.value = newState
             }
         }
@@ -154,4 +153,3 @@ class FoldableStateObserver(
         private const val DEBOUNCE_DELAY_MS = 300L
     }
 }
-
