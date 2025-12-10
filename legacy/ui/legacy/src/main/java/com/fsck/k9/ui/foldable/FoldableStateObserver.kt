@@ -124,11 +124,9 @@ class FoldableStateObserver(
             }
         }
 
-        logger.v(
-            "FoldableStateObserver",
-            "Window layout changed: foldingFeature=$foldingFeature, " +
-                "state=${foldingFeature?.state}, newState=$newState",
-        )
+        logger.verbose("FoldableStateObserver") {
+            "Window layout changed: foldingFeature=$foldingFeature, state=${foldingFeature?.state}, newState=$newState"
+        }
 
         // Debounce state changes to prevent rapid toggling during fold/unfold animations
         updateStateWithDebounce(newState)
