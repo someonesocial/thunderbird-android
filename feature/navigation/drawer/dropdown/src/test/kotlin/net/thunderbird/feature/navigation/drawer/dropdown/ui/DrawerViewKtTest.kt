@@ -1,10 +1,7 @@
 package net.thunderbird.feature.navigation.drawer.dropdown.ui
 
-import androidx.compose.ui.test.onChildAt
-import androidx.compose.ui.test.printToString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.k9mail.core.ui.compose.testing.ComposeTest
-import app.k9mail.core.ui.compose.testing.onNodeWithTag
 import app.k9mail.core.ui.compose.testing.setContentWithTheme
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -36,7 +33,6 @@ internal class DrawerViewKtTest : ComposeTest() {
                 openSettings = { counter.openSettingsCount++ },
                 openAddAccount = { counter.openAddAccountCount++ },
                 closeDrawer = { counter.closeDrawerCount++ },
-                featureFlagProvider = FakeFeatureFlagProvider(isEnabled = true),
                 viewModel = viewModel,
             )
         }
@@ -91,7 +87,6 @@ internal class DrawerViewKtTest : ComposeTest() {
                 openSettings = { },
                 openAddAccount = { },
                 closeDrawer = { },
-                featureFlagProvider = FakeFeatureFlagProvider(isEnabled = true),
                 viewModel = viewModel,
             )
         }
@@ -111,49 +106,6 @@ internal class DrawerViewKtTest : ComposeTest() {
         drawerStateFlow.emit(initialDrawerState.copy(selectedFolderId = null))
 
         viewModel.events.contains(Event.SelectFolder(null))
-    }
-
-    @Test
-    fun `pull refresh should listen to view model state`() = runTest {
-        val initialState = State(
-            isLoading = false,
-        )
-        val viewModel = FakeDrawerViewModel(initialState)
-
-        setContentWithTheme {
-            DrawerView(
-                drawerState = FolderDrawerState(),
-                openAccount = {},
-                openFolder = { _, _ -> },
-                openUnifiedFolder = {},
-                openManageFolders = {},
-                openSettings = {},
-                openAddAccount = {},
-                closeDrawer = {},
-                featureFlagProvider = FakeFeatureFlagProvider(isEnabled = true),
-                viewModel = viewModel,
-            )
-        }
-
-        onNodeWithTag("PullToRefreshBox").assertExists()
-        onNodeWithTag("PullToRefreshIndicator").assertExists()
-            .onChildAt(0).assertExists()
-            .printToString()
-            .contains("ProgressBarRangeInfo(current=0.0, range=0.0..1.0, steps=0)")
-
-        viewModel.applyState(initialState.copy(isLoading = true))
-
-        onNodeWithTag("PullToRefreshIndicator").assertExists()
-            .onChildAt(0).assertExists()
-            .printToString()
-            .contains("ProgressBarRangeInfo(current=0.0, range=0.0..0.0, steps=0)")
-
-        viewModel.applyState(initialState.copy(isLoading = false))
-
-        onNodeWithTag("PullToRefreshIndicator").assertExists()
-            .onChildAt(0).assertExists()
-            .printToString()
-            .contains("ProgressBarRangeInfo(current=0.0, range=0.0..1.0, steps=0)")
     }
 
     @Suppress("DataClassShouldBeImmutable")

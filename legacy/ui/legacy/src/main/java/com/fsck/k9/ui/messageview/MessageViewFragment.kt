@@ -10,6 +10,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.SystemClock
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.Menu
@@ -17,12 +19,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat.Type.navigationBars
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -64,6 +65,7 @@ import kotlinx.datetime.toLocalDateTime
 import net.thunderbird.core.android.account.LegacyAccountDto
 import net.thunderbird.core.android.account.LegacyAccountDtoManager
 import net.thunderbird.core.common.mail.Flag
+import net.thunderbird.core.common.provider.AppNameProvider
 import net.thunderbird.core.featureflag.FeatureFlagProvider
 import net.thunderbird.core.logging.legacy.Log
 import net.thunderbird.core.preference.GeneralSettingsManager
@@ -90,6 +92,7 @@ class MessageViewFragment :
     private val generalSettingsManager: GeneralSettingsManager by inject()
     private val outboxFolderManager: OutboxFolderManager by inject()
     private val featureFlagProvider: FeatureFlagProvider by inject()
+    private val appNameProvider: AppNameProvider by inject()
 
     private val createDocumentLauncher: ActivityResultLauncher<CreateDocumentResultContract.Input> =
         registerForActivityResult(CreateDocumentResultContract()) { documentUri ->
@@ -212,19 +215,6 @@ class MessageViewFragment :
         messageTopView.setOnDownloadButtonClickListener {
             onDownloadButtonClicked()
         }
-
-        initializeMessageTopViewInsets(messageTopView)
-    }
-
-    private fun initializeMessageTopViewInsets(messageTopView: MessageTopView) {
-        val view = messageTopView.findViewById<View>(R.id.message_container)
-
-        ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowsInsets ->
-            val insets = windowsInsets.getInsets(navigationBars())
-            v.setPadding(0, 0, 0, insets.bottom)
-
-            windowsInsets
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -346,6 +336,7 @@ class MessageViewFragment :
         menu.findItem(R.id.show_headers).isVisible = true
         menu.findItem(R.id.export_eml).isVisible =
             featureFlagProvider.provide(MessageViewFeatureFlags.ActionExportEml).isEnabled()
+        menu.findItem(R.id.print)?.isVisible = true
         menu.findItem(R.id.compose).isVisible = true
 
         val toggleTheme = menu.findItem(R.id.toggle_message_view_theme)
@@ -382,6 +373,10 @@ class MessageViewFragment :
             R.id.move_to_drafts -> onMoveToDrafts()
             R.id.unsubscribe -> onUnsubscribe()
             R.id.show_headers -> onShowHeaders()
+            R.id.print -> {
+                printMessage()
+                return true
+            }
             R.id.export_eml -> if (
                 featureFlagProvider.provide(MessageViewFeatureFlags.ActionExportEml).isEnabled()
             ) {
@@ -395,6 +390,23 @@ class MessageViewFragment :
         }
 
         return true
+    }
+
+    private fun printMessage() {
+        val context = context
+        val webView = view?.findViewById<WebView>(R.id.message_content)
+        val printManager = context?.getSystemService(Context.PRINT_SERVICE) as? PrintManager
+        if (context == null || webView == null || printManager == null) return
+
+        val subject = mMessageViewInfo?.subject ?: getString(R.string.general_no_subject)
+        val jobName = appNameProvider.appName + ": " + subject
+        val printAdapter = webView.createPrintDocumentAdapter(jobName)
+
+        printManager.print(
+            jobName,
+            printAdapter,
+            PrintAttributes.Builder().build(),
+        )
     }
 
     private fun onShowHeaders() {
