@@ -1,4 +1,4 @@
-package com.fsck.k9.ui.foldable
+package app.k9mail.core.ui.compose.common.window
 
 import android.app.Activity
 import androidx.lifecycle.Lifecycle
@@ -111,7 +111,6 @@ class FoldableStateObserverTest : RobolectricTest() {
     private class TestLifecycleOwner : LifecycleOwner {
         val registry = LifecycleRegistry(this)
 
-        override val lifecycle: Lifecycle
-            get() = registry
+        override val lifecycle: Lifecycle = registry
     }
 }

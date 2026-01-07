@@ -21,6 +21,7 @@ Thunderbird already supports split-screen views, but these are static (Always/Ne
 **File**: `core/preference/api/src/commonMain/kotlin/net/thunderbird/core/preference/GeneralSettings.kt`
 
 Added new option:
+
 ```kotlin
 enum class SplitViewMode {
     ALWAYS,
@@ -41,6 +42,7 @@ Responsibilities:
 - Implements 300ms debouncing to prevent layout thrashing
 
 **FoldableState Enum**:
+
 ```kotlin
 enum class FoldableState {
     FOLDED,      // Device is folded (small screen)
@@ -106,6 +108,7 @@ Correct layout loaded
 ### Dependencies
 
 **gradle/libs.versions.toml**:
+
 ```toml
 [versions]
 androidxWindow = "1.3.0"
@@ -115,6 +118,7 @@ androidx-window = { module = "androidx.window:window", version.ref = "androidxWi
 ```
 
 **legacy/ui/legacy/build.gradle.kts**:
+
 ```kotlin
 implementation(libs.androidx.window)
 ```
@@ -123,17 +127,14 @@ implementation(libs.androidx.window)
 
 ### Edge Cases
 
-1. **Rapid fold/unfold**: 
+1. **Rapid fold/unfold**:
    - Solution: 300ms debounce prevents multiple recreate calls
-   
 2. **Orientation change during fold**:
    - Both events can occur
    - `recreate()` is only called once (Android standard behavior)
-   
 3. **Multi-window mode**:
    - WindowManager provides correct information per window
    - Layout based on active window
-   
 4. **Half-open state** (laptop mode):
    - Treated as `UNFOLDED`
    - User gets split-view
@@ -143,11 +144,9 @@ implementation(libs.androidx.window)
 1. **Layout switch via recreate()**:
    - Brief flash during transition
    - Alternative: Dynamic layout swapping (more complex, future improvement)
-   
 2. **Tablet detection**:
    - Large tablets without FoldingFeature → `UNKNOWN`
    - User should choose ALWAYS or WHEN_IN_LANDSCAPE
-   
 3. **No hinge-position utilization**:
    - `FoldingFeature.bounds` not used
    - Future: Adapt content to hinge position
@@ -181,15 +180,12 @@ Test scenarios:
 1. **Dynamic layout swapping** without `recreate()`:
    - Smooth transitions without restart
    - Runtime fragment container swapping
-   
 2. **Hinge-aware layouts**:
    - Content positioning around hinge
    - Avoid important UI elements at fold
-   
 3. **Tablet detection**:
    - Auto-detect large non-foldables
    - Auto-enable split-view on tablets
-   
 4. **Compose migration**:
    - Foldable-aware Composables
    - `WindowSizeClass` integration

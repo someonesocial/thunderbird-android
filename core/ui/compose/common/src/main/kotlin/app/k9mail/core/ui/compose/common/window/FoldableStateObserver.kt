@@ -1,4 +1,4 @@
-package com.fsck.k9.ui.foldable
+package app.k9mail.core.ui.compose.common.window
 
 import android.app.Activity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -16,20 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import net.thunderbird.core.logging.Logger
-
-/**
- * Represents the foldable state of a device.
- */
-enum class FoldableState {
-    /** Device is in a folded state (small screen, hinge angle typically < 90°) */
-    FOLDED,
-
-    /** Device is in an unfolded state (large screen, hinge angle typically > 120°) */
-    UNFOLDED,
-
-    /** Device is not a foldable or state cannot be determined */
-    UNKNOWN,
-}
 
 /**
  * Observes the foldable state of a device using Jetpack WindowManager.

@@ -26,6 +26,8 @@ import androidx.lifecycle.lifecycleScope
 import app.k9mail.core.android.common.compat.BundleCompat
 import app.k9mail.core.android.common.contact.CachingRepository
 import app.k9mail.core.android.common.contact.ContactRepository
+import app.k9mail.core.ui.compose.common.window.FoldableState
+import app.k9mail.core.ui.compose.common.window.FoldableStateObserver
 import app.k9mail.core.ui.legacy.designsystem.atom.icon.Icons
 import app.k9mail.feature.funding.api.FundingManager
 import app.k9mail.feature.launcher.FeatureLauncherActivity
@@ -42,8 +44,6 @@ import com.fsck.k9.search.isUnifiedFolders
 import com.fsck.k9.ui.BuildConfig
 import com.fsck.k9.ui.R
 import com.fsck.k9.ui.base.BaseActivity
-import com.fsck.k9.ui.foldable.FoldableState
-import com.fsck.k9.ui.foldable.FoldableStateObserver
 import com.fsck.k9.ui.managefolders.ManageFoldersActivity
 import com.fsck.k9.ui.messagelist.DefaultFolderProvider
 import com.fsck.k9.ui.messagelist.MessageListFragment
