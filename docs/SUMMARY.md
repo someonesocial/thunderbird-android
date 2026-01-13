@@ -48,6 +48,7 @@ generator, in this case, **mdbook**. It defines the structure and navigation of 
 - [Developer](developer/README.md)
   - [Database Migration Checklist](developer/db-migration-checklist.md)
   - [Foldable Device Support](developer/foldable-device-support.md)
+  - [Preference Migration Guide](developer/preference-migration-guide.md)
 - [Release]()
   - [Release Process](release/RELEASE.md)
   - [Release Automation](release/AUTOMATION.md)
