@@ -7,7 +7,7 @@ import app.k9mail.legacy.message.controller.MessagingControllerMailChecker
 import com.fsck.k9.controller.MessagingController
 import com.fsck.k9.ui.helper.DisplayHtmlUiFactory
 import com.fsck.k9.ui.helper.SizeFormatter
-import com.fsck.k9.ui.messagelist.AbstractMessageListFragment
+import com.fsck.k9.ui.messagelist.BaseMessageListFragment
 import com.fsck.k9.ui.messagelist.LegacyMessageListFragment
 import com.fsck.k9.ui.messagelist.MessageListFragment
 import com.fsck.k9.ui.messageview.LinkTextHandler
@@ -37,6 +37,7 @@ val uiModule = module {
     factory { LinkTextHandler(context = get(), clipboardManager = get()) }
     factory { (activity: Activity) -> FoldableStateObserver(activity = activity, logger = get()) }
     factory<AbstractMessageListFragment.Factory> {
+    factory<BaseMessageListFragment.Factory> {
         val featureFlagProvider = get<FeatureFlagProvider>()
         if (featureFlagProvider.provide(MessageListFeatureFlags.EnableMessageListNewState).isEnabled()) {
             MessageListFragment.Factory
