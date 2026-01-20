@@ -85,7 +85,7 @@ Changes:
 
 #### Technical Flow
 
-```
+```text
 WindowInfoTracker (Android System)
     ↓
 WindowLayoutInfo with FoldingFeature
