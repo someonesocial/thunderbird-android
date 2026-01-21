@@ -35,7 +35,9 @@ val uiModule = module {
     factory { (context: Context) -> SizeFormatter(context.resources) }
     factory { ShareIntentBuilder(resourceProvider = get(), textPartFinder = get(), quoteDateFormatter = get()) }
     factory { LinkTextHandler(context = get(), clipboardManager = get()) }
-    factory { (activity: Activity) -> FoldableStateObserver(activity = activity, logger = get()) }
+    factory { (activity: Activity) ->
+        FoldableStateObserver(activity = activity, logger = get())
+    }
     factory<BaseMessageListFragment.Factory> {
         val featureFlagProvider = get<FeatureFlagProvider>()
         if (featureFlagProvider.provide(MessageListFeatureFlags.EnableMessageListNewState).isEnabled()) {
